@@ -54,7 +54,7 @@ app.get("/api/notion/data", async (req, res) => {
     const brandingPage = pages.find((p: any) => p.title.toLowerCase() === 'branding');
     
     const ilustracionChildren = ilustracionPage ? pages.filter((p: any) => p.parentId === ilustracionPage.id) : [];
-    const brandingChildren = brandingPage ? pages.filter((p: any) => p.parentId === brandingPage.id) : [];
+    const brandingChildren = brandingPage ? pages.filter((p: any) => p.parentId === brandingPage.id && !p.title.toLowerCase().includes('manual de marca compressed')) : [];
     
     const fetchPageContent = async (page: any) => {
       try {

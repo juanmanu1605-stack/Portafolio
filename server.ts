@@ -68,7 +68,7 @@ async function startServer() {
       
       // Encontrar los proyectos dentro de las carpetas
       const ilustracionChildren = ilustracionPage ? pages.filter(p => p.parentId === ilustracionPage.id) : [];
-      const brandingChildren = brandingPage ? pages.filter(p => p.parentId === brandingPage.id) : [];
+      const brandingChildren = brandingPage ? pages.filter(p => p.parentId === brandingPage.id && !p.title.toLowerCase().includes('manual de marca compressed')) : [];
       
       // Función para obtener el contenido (bloques) de una página
       const fetchPageContent = async (page: any) => {
