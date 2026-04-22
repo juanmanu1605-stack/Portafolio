@@ -333,6 +333,12 @@ const CaseStudyDetail = ({ caseStudy, onBack }: { caseStudy: CaseStudy, onBack: 
   );
 };
 
+interface ContentBlock {
+  type: 'text' | 'heading' | 'image';
+  content?: string;
+  url?: string;
+}
+
 interface BrandingModule {
   id: string;
   label: string;
@@ -342,6 +348,7 @@ interface BrandingModule {
   image: string;
   images?: string[];
   pdfUrl?: string;
+  blocks?: ContentBlock[];
 }
 
 const BRANDING_MODULES: BrandingModule[] = [
@@ -469,6 +476,42 @@ const BrandingDetail = ({ module, onBack }: { module: BrandingModule, onBack: ()
                     <span>Abrir en pestaña nueva</span>
                   </a>
                 </div>
+              </div>
+            ) : module.blocks && module.blocks.length > 0 ? (
+              <div className="space-y-12">
+                {module.blocks.map((block, idx) => {
+                  if (block.type === 'heading') {
+                    return (
+                      <h3 key={idx} className="text-2xl md:text-4xl font-black uppercase tracking-tighter text-safety-orange pt-8 border-t border-white/10">
+                        {block.content}
+                      </h3>
+                    );
+                  }
+                  if (block.type === 'text') {
+                    return (
+                      <p key={idx} className="text-concrete text-base md:text-lg leading-relaxed whitespace-pre-wrap">
+                        {block.content}
+                      </p>
+                    );
+                  }
+                  if (block.type === 'image') {
+                    return (
+                      <motion.div 
+                        key={idx}
+                        className="w-full brutalist-border overflow-hidden cursor-zoom-in group bg-white/5"
+                        onClick={() => setSelectedImage(block.url!)}
+                      >
+                        <img 
+                          src={block.url} 
+                          alt={`block-${idx}`} 
+                          className="w-full h-auto object-contain p-4 group-hover:scale-105 transition-transform duration-700"
+                          referrerPolicy="no-referrer"
+                        />
+                      </motion.div>
+                    );
+                  }
+                  return null;
+                })}
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -711,7 +754,8 @@ export default function App() {
           content: item.description || "Detalles del sistema de marca.",
           image: item.image || `https://picsum.photos/seed/${item.id}/1200/800`,
           images: item.images || [],
-          pdfUrl: item.pdfUrl || ""
+          pdfUrl: item.pdfUrl || "",
+          blocks: item.blocks || []
         });
       });
     }

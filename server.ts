@@ -76,6 +76,23 @@ async function startServer() {
           const blocksRes = await notionClient.blocks.children.list({ block_id: page.id });
           const blocks = blocksRes.results as any[];
           
+          // Generate an ordered list of blocks to maintain sequential context
+          const orderedBlocks = blocks.map((b: any) => {
+            if (b.type === 'paragraph') {
+              const t = b.paragraph?.rich_text?.map((t: any) => t.plain_text).join('') || "";
+              return t.trim() ? { type: 'text', content: t } : null;
+            }
+            if (b.type.startsWith('heading_')) {
+              const t = b[b.type]?.rich_text?.map((t: any) => t.plain_text).join('') || "";
+              return t.trim() ? { type: 'heading', content: t } : null;
+            }
+            if (b.type === 'image') {
+              const u = b.image?.file?.url || b.image?.external?.url;
+              return u ? { type: 'image', url: u } : null;
+            }
+            return null;
+          }).filter(Boolean);
+
           // Obtener todos los párrafos de texto
           const paragraphs = blocks
             .filter(b => b.type === 'paragraph')
@@ -106,11 +123,12 @@ async function startServer() {
             description: text, 
             image: images[0] || "", 
             images: images,
-            pdfUrl: pdfUrl
+            pdfUrl: pdfUrl,
+            blocks: orderedBlocks
           };
         } catch (e) {
           console.error(`Error fetching blocks for page ${page.title}:`, e);
-          return { ...page, description: "", image: "", images: [] };
+          return { ...page, description: "", image: "", images: [], blocks: [] };
         }
       };
       
